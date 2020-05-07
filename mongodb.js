@@ -23,21 +23,18 @@ MongoClient.connect(
     // get database reference
     const db = client.db(databaseName);
 
-    db.collection("tasks")
-      .updateMany(
+    db.collection("users")
+      .deleteOne(
         {
-          completed: true,
+          age: 28,
         },
-        {
-          $set: {
-            completed: false,
-          },
-        }
       )
       .then((result) => {
-        console.log(result.modifiedCount);
+        console.log(result);
       })
       .catch((err) => console.log(err));
+
+      //modifiedCount
 
     // db.collection('users').insertMany([{
     //     name: "Pritha Mukherjee",
@@ -106,3 +103,4 @@ MongoClient.connect(
     // });
   }
 );
+// mongod --dbpath=/Users/sumitpal/Desktop/mongo
