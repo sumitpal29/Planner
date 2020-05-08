@@ -7,38 +7,28 @@ mongoose.connect(connectionURL, {
   useCreateIndex: true,
 });
 
+// const userModel = require('./models/users');
+// const taskModel = require('./models/tasks');
+
+
 // create a model for user
-const User = mongoose.model("User", {
-  name: {
-    type: String,
-  },
-  age: {
-    type: Number,
-  },
-});
+// const User = mongoose.model("User", userModel);
+// const Task = mongoose.model("Task", taskModel);
 
-const Task = mongoose.model("Task", {
-  description: {
-    type: String,
-  },
-  completed: {
-    type: Boolean,
-  },
-});
+// const task = new Task({
+//   description: "Read mongo db tutorials",
+// });
 
-const task = new Task({
-  description: "Email Naresh about your feedback!!",
-  completed: true,
-});
-
-task
-  .save()
-  .then((e) => console.log(e))
-  .catch((err) => console.log(`${err.name} : ${err.message}`));
+// task
+//   .save()
+//   .then((e) => console.log(e))
+//   .catch((err) => console.log(`${err.name} : ${err.message}`));
 
 // const userDetails = new User({
-//   name: "Pritha",
-//   age: "26 years old",
+//   name: "Subhash",
+//   age: "29",
+//   email: "  subhash@gmail.com   ",
+//   password: "password",
 // });
 
 // userDetails

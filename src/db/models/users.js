@@ -1,4 +1,7 @@
-module.exports = {
+const validator = require("validator");
+const mongoose = require("mongoose");
+// create a model for user
+const User = mongoose.model("User", {
   name: {
     type: String,
     trim: true,
@@ -34,4 +37,6 @@ module.exports = {
       }
     },
   },
-};
+});
+
+module.exports = User;

@@ -1,13 +1,16 @@
-const task = {
-    description: {
-      type: String,
-      trim: true,
-      required: true,
-    },
-    completed: {
-      type: Boolean,
-      default: false,
-    },
-  };
-  
-module.exports = task;
+const validator = require("validator");
+const mongoose = require("mongoose");
+
+const Task = mongoose.model("Task", {
+  description: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+module.exports = Task;
