@@ -1,6 +1,4 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
-
 const router = new express.Router();
 const Task = require("../db/models/tasks");
 
@@ -48,13 +46,15 @@ router.patch("/tasks/:id", async (req, res) => {
     });
 
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
+    // const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+    //   new: true,
+    //   runValidators: true,
+    // });
+    const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).send({});
-    res.status(200).send(task);
+
+    props.forEach((prop) => (task[prop] = req.body[prop]));
+    await task.save().then((t) => res.status(200).send(t));
   } catch (e) {
     res.status(404).send(e);
   }
@@ -72,18 +72,5 @@ router.delete("/tasks/:id", async (req, res) => {
     res.status(500).send(e);
   }
 });
-
-
-const myfunc = async () => {
-  const pass = "Me&*^$*78648";
-  const hashed = await bcrypt.hash(pass, 8);
-
-  console.log(pass);
-  console.log(hashed);
-  const isValid = await bcrypt.compare(pass, hashed);
-  console.log(isValid);
-};
-
-myfunc();
 
 module.exports = router;

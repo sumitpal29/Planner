@@ -13,6 +13,17 @@ router.post("/users", async (req, res) => {
   }
 });
 
+router.post("/users/login", async (req, res) => {
+  try {
+    const user = await User.findByCredential(req.body.email, req.body.password);
+
+    console.log(user);
+    res.send(user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
 router.get("/users", async (req, res) => {
   try {
     const users = await User.find({});
@@ -37,7 +48,7 @@ router.get("/users/:id", async (req, res) => {
 
 // update user data by id
 router.patch("/users/:id", async (req, res) => {
-  const allowedProps = ["name", "email", "age"];
+  const allowedProps = ["name", "email", "age", "password"];
   const props = Object.keys(req.body);
   const isValidUpdate = props.every((prop) => allowedProps.includes(prop));
 
@@ -47,15 +58,30 @@ router.patch("/users/:id", async (req, res) => {
     });
 
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await User.findById(req.params.id);
 
     if (!user) return res.status(404).send({});
-    res.status(200).send(user);
+
+    props.forEach((prop) => {
+      user[prop] = req.body[prop];
+    });
+
+    await user.save().then((e) => res.status(200).send(e));
   } catch (e) {
     res.status(404).send(e);
+  }
+});
+
+router.delete("/users/:id", async (req, res) => {
+  const _id = req.params.id;
+
+  try {
+    const user = await User.findByIdAndDelete(_id);
+
+    if (!user) res.status(404).send();
+    res.status(201).send(user);
+  } catch (e) {
+    res.status(500).send(e);
   }
 });
 

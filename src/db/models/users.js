@@ -1,7 +1,8 @@
 const validator = require("validator");
 const mongoose = require("mongoose");
-// create a model for user
-const User = mongoose.model("User", {
+const bcrypt = require("bcryptjs");
+
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
@@ -9,6 +10,7 @@ const User = mongoose.model("User", {
   },
   email: {
     type: String,
+    unique: true,
     required: true,
     lowercase: true,
     trim: true,
@@ -39,4 +41,45 @@ const User = mongoose.model("User", {
   },
 });
 
+userSchema.pre("save", async function (next) {
+  // this should be a normal function thus we get access of the data is going to get saved
+  const user = this;
+
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  console.log("called before", user.password);
+  // next tells mongoose that this middleware is done doing tasks, go ahead
+  next();
+});
+
+userSchema.statics.findByCredential = async (email, password) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("Email not registered!");
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Password or Email did not Matched");
+  }
+  console.log('in 4');
+
+  return user;
+};
+// create a model for user
+const User = mongoose.model("User", userSchema);
+
 module.exports = User;
+
+// const myfunc = async () => {
+//   const pass = "Me&*^$*78648";
+//   const hashed = await bcrypt.hash(pass, 8);
+
+//   console.log(pass);
+//   console.log(hashed);
+//   const isValid = await bcrypt.compare(pass, hashed);
+//   console.log(isValid);
+// };
+
+// myfunc();
