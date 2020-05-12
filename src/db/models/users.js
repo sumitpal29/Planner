@@ -1,6 +1,7 @@
 const validator = require("validator");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -39,6 +40,14 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {
@@ -48,7 +57,6 @@ userSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
-  console.log("called before", user.password);
   // next tells mongoose that this middleware is done doing tasks, go ahead
   next();
 });
@@ -60,12 +68,21 @@ userSchema.statics.findByCredential = async (email, password) => {
     throw new Error("Email not registered!");
   }
   const isMatch = await bcrypt.compare(password, user.password);
+  
   if (!isMatch) {
     throw new Error("Password or Email did not Matched");
   }
-  console.log('in 4');
 
   return user;
+};
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  // data and secret key -> returns token
+  const token = jwt.sign({ _id: user._id.toString() }, "&*^$&");
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  console.log(user);
+  return token;
 };
 // create a model for user
 const User = mongoose.model("User", userSchema);
