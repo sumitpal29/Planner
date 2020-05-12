@@ -1,6 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const User = require("../db/models/users");
+const auth = require("../middleware/auth");
 
 // create new user
 router.post("/users", async (req, res) => {
