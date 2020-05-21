@@ -9,8 +9,8 @@ router.post("/users", async (req, res) => {
   try {
     await newUser.save();
     const token = await newUser.generateAuthToken();
-    console.log({newUser, token})
-    res.status(201).send({newUser, token});
+
+    res.status(201).send({ newUser, token });
   } catch (e) {
     res.status(400).send(e);
   }
@@ -20,20 +20,49 @@ router.post("/users/login", async (req, res) => {
   try {
     const user = await User.findByCredential(req.body.email, req.body.password);
     const token = await user.generateAuthToken();
-    
-    res.send({user, token});
+
+    res.send({ user, token });
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
-router.get("/users", async (req, res) => {
+router.post("/users/logout", auth, async (req, res) => {
   try {
-    const users = await User.find({});
-    res.status(201).send(users);
+    req.user.tokens = req.user.tokens.filter((ob) => {
+      // filter out which is matched
+      return ob.token !== req.token;
+    });
+    await req.user.save();
+    res.send();
   } catch (e) {
     res.status(500).send(e);
   }
+});
+
+router.post("/users/logout-all", auth, async (req, res) => {
+  try {
+    req.user && (req.user.tokens = []);
+    await req.user.save();
+    res.send({
+      status: "Logged-out from all sessions",
+    });
+  } catch (e) {
+    res.status(500).send(e);
+  }
+});
+
+// router.get("/users", async (req, res) => {
+//   try {
+//     const users = await User.find({});
+//     res.status(200).send(users);
+//   } catch (e) {
+//     res.status(500).send(e);
+//   }
+// });
+
+router.get("/users/me", auth, async (req, res) => {
+  res.send(req.user);
 });
 
 router.get("/users/:id", async (req, res) => {
@@ -50,7 +79,7 @@ router.get("/users/:id", async (req, res) => {
 });
 
 // update user data by id
-router.patch("/users/:id", async (req, res) => {
+router.patch("/users/me", auth, async (req, res) => {
   const allowedProps = ["name", "email", "age", "password"];
   const props = Object.keys(req.body);
   const isValidUpdate = props.every((prop) => allowedProps.includes(prop));
@@ -61,9 +90,7 @@ router.patch("/users/:id", async (req, res) => {
     });
 
   try {
-    const user = await User.findById(req.params.id);
-
-    if (!user) return res.status(404).send({});
+    const {user} = req;
 
     props.forEach((prop) => {
       user[prop] = req.body[prop];
@@ -75,14 +102,14 @@ router.patch("/users/:id", async (req, res) => {
   }
 });
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/users/:id", auth, async (req, res) => {
   const _id = req.params.id;
 
   try {
-    const user = await User.findByIdAndDelete(_id);
-
-    if (!user) res.status(404).send();
-    res.status(201).send(user);
+    // const user = await User.findByIdAndDelete(req.user._id);
+    // if (!user) res.status(404).send();
+    await req.user.remove();
+    res.status(201).send(req.user);
   } catch (e) {
     res.status(500).send(e);
   }

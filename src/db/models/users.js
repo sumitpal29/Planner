@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const Task = require("./tasks");
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -48,6 +50,17 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+},{
+  timestamps: true
+});
+
+// middleware for deleting all the task when a user is deleted
+userSchema.pre("remove", async function (next) {
+  const user = this;
+  await Task.deleteMany({
+    owner: user._id,
+  });
+  next();
 });
 
 userSchema.pre("save", async function (next) {
@@ -68,7 +81,7 @@ userSchema.statics.findByCredential = async (email, password) => {
     throw new Error("Email not registered!");
   }
   const isMatch = await bcrypt.compare(password, user.password);
-  
+
   if (!isMatch) {
     throw new Error("Password or Email did not Matched");
   }
@@ -81,9 +94,20 @@ userSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign({ _id: user._id.toString() }, "&*^$&");
   user.tokens = user.tokens.concat({ token });
   await user.save();
-  console.log(user);
   return token;
 };
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.password;
+  delete user.tokens;
+  return user;
+};
+
+userSchema.virtual("tasks", {
+  ref: "Task", // a reference between Task and the User on the virtual - not stored in DB
+  localField: "_id", // the local id
+  foreignField: "owner", // is the of the field on the task that will set the relationship
+});
 // create a model for user
 const User = mongoose.model("User", userSchema);
 
