@@ -25,7 +25,27 @@ router.get("/tasks", auth, async (req, res) => {
     // const tasks = await Task.find({
     //   owner: req.user._id,
     // });
-    await req.user.populate("tasks").execPopulate();
+    const match = {};
+    const options = {};
+    if (req.query.completed) {
+      match.completed = req.query.completed === "true" ? true : false;
+    }
+    if (req.query.per_page) {
+      options.limit = parseInt(req.query.per_page);
+    }
+    if (req.query.per_page) {
+      console.log(parseInt(req.query.page) * parseInt(req.query.per_page))
+      options.skip = parseInt(req.query.page) * parseInt(req.query.per_page);
+    }
+
+    await req.user
+      .populate({
+        path: "tasks",
+        match,
+        options,
+      })
+      .execPopulate();
+
     res.status(201).send(req.user.tasks);
   } catch (e) {
     res.status(500).send(e);
@@ -69,7 +89,7 @@ router.patch("/tasks/:id", auth, async (req, res) => {
       _id: req.params.id,
       owner: req.user._id,
     });
-    
+
     if (!task) return res.status(404).send({});
 
     props.forEach((prop) => (task[prop] = req.body[prop]));
