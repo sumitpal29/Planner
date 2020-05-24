@@ -4,54 +4,60 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Task = require("./tasks");
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    trim: true,
-    required: true,
-  },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    lowercase: true,
-    trim: true,
-    validate(val) {
-      if (!validator.isEmail(val)) {
-        throw new Error("Email is not valid.");
-      }
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+      required: true,
     },
-  },
-  password: {
-    type: String,
-    required: true,
-    trim: true,
-    minlength: 7,
-    validate(val) {
-      if (val.toLowerCase().includes("password")) {
-        throw new Error("Password must not contain 'password' string!!");
-      }
-    },
-  },
-  age: {
-    type: Number,
-    validate(val) {
-      if (val < 0) {
-        throw new Error("Age must be a positive number");
-      }
-    },
-  },
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      lowercase: true,
+      trim: true,
+      validate(val) {
+        if (!validator.isEmail(val)) {
+          throw new Error("Email is not valid.");
+        }
       },
     },
-  ],
-},{
-  timestamps: true
-});
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 7,
+      validate(val) {
+        if (val.toLowerCase().includes("password")) {
+          throw new Error("Password must not contain 'password' string!!");
+        }
+      },
+    },
+    age: {
+      type: Number,
+      validate(val) {
+        if (val < 0) {
+          throw new Error("Age must be a positive number");
+        }
+      },
+    },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    avator: {
+      type: Buffer,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // middleware for deleting all the task when a user is deleted
 userSchema.pre("remove", async function (next) {
@@ -95,10 +101,14 @@ userSchema.methods.generateAuthToken = async function () {
   await user.save();
   return token;
 };
+
 userSchema.methods.toJSON = function () {
+  // for rescrticting user data
+  // user don't need hashed passwords, active tokens
   const user = this.toObject();
   delete user.password;
   delete user.tokens;
+  delete user.avator;
   return user;
 };
 
@@ -107,6 +117,8 @@ userSchema.virtual("tasks", {
   localField: "_id", // the local id
   foreignField: "owner", // is the of the field on the task that will set the relationship
 });
+// go to Tasks and use my (user) _id and find them in owner key :) 
+
 // create a model for user
 const User = mongoose.model("User", userSchema);
 

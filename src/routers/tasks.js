@@ -34,8 +34,14 @@ router.get("/tasks", auth, async (req, res) => {
       options.limit = parseInt(req.query.per_page);
     }
     if (req.query.per_page) {
-      console.log(parseInt(req.query.page) * parseInt(req.query.per_page))
       options.skip = parseInt(req.query.page) * parseInt(req.query.per_page);
+    }
+    if (req.query.sortBy) {
+      // {{url}}/tasks?sortBy=createdAt:desc
+      // {{url}}/tasks?sortBy=completed:as
+      const str = req.query.sortBy.split(":");
+      options.sort = {};
+      options.sort[str[0]] = str[1] === "desc" ? -1 : 1;
     }
 
     await req.user
