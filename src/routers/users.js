@@ -3,6 +3,7 @@ const router = new express.Router();
 const User = require("../db/models/users");
 const auth = require("../middleware/auth");
 const multer = require("multer");
+const sharp = require("sharp");
 const uploads = multer({
   // dest: "avators/",
   limits: {
@@ -134,7 +135,12 @@ router.post(
   auth,
   uploads.single("avator"),
   async (req, res) => {
-    req.user.avator = req.file.buffer; // cintains binary data
+    // sharp is async -  sharp('takes buffer') - provides chaining methods
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 200, height: 200 })
+      .png()
+      .toBuffer();
+    req.user.avator = buffer; // cintains binary data
     await req.user.save();
     res.send({
       message: "File uploaded",
@@ -168,7 +174,7 @@ router.get("/users/:id/avator", async (req, res) => {
       });
     }
     // set header with content-type
-    res.set("content-type", "image/jpg");
+    res.set("content-type", "image/png");
     res.status(200).send(user.avator);
   } catch (err) {
     res.status(500).send(err);
