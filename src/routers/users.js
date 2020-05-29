@@ -5,7 +5,7 @@ const auth = require("../middleware/auth");
 const multer = require("multer");
 const sharp = require("sharp");
 const uploads = multer({
-  // dest: "avators/",
+  // dest: "avators/", // not required as we are going to use the file and saving it in db
   limits: {
     fileSize: 1000000,
   },
@@ -29,6 +29,7 @@ router.post("/users", async (req, res) => {
     res.status(400).send(e);
   }
 });
+
 // login
 router.post("/users/login", async (req, res) => {
   try {
@@ -41,6 +42,7 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
+// logout
 router.post("/users/logout", auth, async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter((ob) => {
@@ -54,6 +56,7 @@ router.post("/users/logout", auth, async (req, res) => {
   }
 });
 
+// logout-all
 router.post("/users/logout-all", auth, async (req, res) => {
   try {
     req.user && (req.user.tokens = []);
