@@ -96,7 +96,7 @@ userSchema.statics.findByCredential = async (email, password) => {
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
   // data and secret key -> returns token
-  const token = jwt.sign({ _id: user._id.toString() }, "&*^$&");
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWTCODE);
   user.tokens = user.tokens.concat({ token });
   await user.save();
   return token;

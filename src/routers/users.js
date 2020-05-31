@@ -2,8 +2,9 @@ const express = require("express");
 const router = new express.Router();
 const User = require("../db/models/users");
 const auth = require("../middleware/auth");
-const multer = require("multer");
-const sharp = require("sharp");
+const multer = require("multer"); // hanle image
+const sharp = require("sharp"); // image processing - resize - conversion
+const { sendWelcomeMail, sendCancelationMail } = require("../mailer");
 const uploads = multer({
   // dest: "avators/", // not required as we are going to use the file and saving it in db
   limits: {
@@ -23,7 +24,7 @@ router.post("/users", async (req, res) => {
   try {
     await newUser.save();
     const token = await newUser.generateAuthToken();
-
+    sendWelcomeMail(newUser.name, newUser.email);
     res.status(201).send({ newUser, token });
   } catch (e) {
     res.status(400).send(e);
@@ -126,6 +127,7 @@ router.delete("/users/:id", auth, async (req, res) => {
     // const user = await User.findByIdAndDelete(req.user._id);
     // if (!user) res.status(404).send();
     await req.user.remove();
+    sendCancelationMail(req.user.name, req.user.email);
     res.status(201).send(req.user);
   } catch (e) {
     res.status(500).send(e);

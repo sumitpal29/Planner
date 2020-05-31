@@ -1,5 +1,6 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
-const connectionURL = "mongodb://127.0.0.1:27017/task-manager-api";
+const connectionURL = process.env.MONGODB_URL;
 
 mongoose.connect(connectionURL, {
   useNewUrlParser: true,
@@ -7,9 +8,9 @@ mongoose.connect(connectionURL, {
   useCreateIndex: true,
 });
 
+// Initial learings
 // const userModel = require('./models/users');
 // const taskModel = require('./models/tasks');
-
 
 // create a model for user
 // const User = mongoose.model("User", userModel);
