@@ -7,7 +7,14 @@ mongoose.connect(connectionURL, {
   useUnifiedTopology: true,
   useCreateIndex: true,
 });
-
+// const MongoClient = require('mongodb').MongoClient;
+// const uri = "mongodb+srv://task-manager:<password>@cluster0-1yrdo.mongodb.net/test?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   client.close();
+// });
 // Initial learings
 // const userModel = require('./models/users');
 // const taskModel = require('./models/tasks');
