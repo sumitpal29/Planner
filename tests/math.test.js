@@ -32,25 +32,25 @@ test('should calculate tip for a total', () => {
     expect(calculateTip(10)).toBe(12.5)
 });
 
-test('should return farenhite value from celcius', () => {
-    expect(C2F(1)).toBe(33.8)
-})
+// test('should return farenhite value from celcius', () => {
+//     expect(C2F(1)).toBe(33.8)
+// })
 
-test('should return celcius value from farenhite', (done) => {
-    setTimeout(() => {
-        expect(F2C(32)).toBe(0)
-        done()
-    }, 2000);
-})
+// test('should return celcius value from farenhite', (done) => {
+//     setTimeout(() => {
+//         expect(F2C(32)).toBe(0)
+//         done()
+//     }, 2000);
+// })
 
-test('promise based add fn - should return sum', (done) => {
-    add(1,2).then(res=>{
-        expect(res).toBe(3)
-        done()
-    })
-})
+// test('promise based add fn - should return sum', (done) => {
+//     add(1,2).then(res=>{
+//         expect(res).toBe(3)
+//         done()
+//     })
+// })
 
-test('async await based add fn - should return sum', async () => {
-    const res = await add(2,3)
-    expect(res).toBe(5)
-})
+// test('async await based add fn - should return sum', async () => {
+//     const res = await add(2,3)
+//     expect(res).toBe(5)
+// })
