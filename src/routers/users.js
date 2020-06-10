@@ -120,7 +120,8 @@ router.patch("/users/me", auth, async (req, res) => {
   }
 });
 
-router.delete("/users/:id", auth, async (req, res) => {
+router.delete("/users", auth, async (req, res) => {
+  // url - "/users/:id"
   // const _id = req.params.id;
 
   try {
@@ -128,7 +129,7 @@ router.delete("/users/:id", auth, async (req, res) => {
     // if (!user) res.status(404).send();
     await req.user.remove();
     sendCancelationMail(req.user.name, req.user.email);
-    res.status(201).send(req.user);
+    res.status(200).send(req.user);
   } catch (e) {
     res.status(500).send(e);
   }
