@@ -1,33 +1,17 @@
 const request = require("supertest");
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 const app = require("../src/app");
 const User = require("../src/db/models/users");
+const { userId, userOne, configureDatabase } = require("./fixtures/db");
+jest.useFakeTimers()
 
-const userId = new mongoose.Types.ObjectId();
-const userOne = {
-  _id: userId,
-  name: "Sumit",
-  email: "sumit@example.com",
-  password: "sum!t321",
-  tokens: [
-    {
-      token: jwt.sign({ _id: userId }, process.env.JWTCODE),
-    },
-  ],
-};
-
-beforeEach(async () => {
-  await User.deleteMany();
-  await new User(userOne).save();
-});
+beforeEach(configureDatabase);
 
 test("should signup a new user", async () => {
   const res = await request(app)
     .post("/users")
     .send({
       name: "Sumit",
-      email: "sum@example.com",
+      email: "sumeet@example.com",
       password: "wellnotgood12",
       age: 28,
     })
@@ -46,7 +30,7 @@ test("should signup a new user", async () => {
   expect(res.body).toMatchObject({
     newUser: {
       name: "Sumit",
-      email: "sum@example.com",
+      email: "sumeet@example.com",
     },
     token: user.tokens[0].token,
   });
@@ -117,32 +101,35 @@ test("should upload avator image", async () => {
     .attach("avator", "tests/fixtures/bg.png") // form field
     .expect(200);
 
-    const user = await User.findById(userId);
-    expect(user.avator).toEqual(expect.any(Buffer))
-    
-    // expect({}).toBe({})
-    // will fail
-    // {} === {} checks same object from memory
-    // so for that we have to use 
-    // expect({}).toEqual({})
+  const user = await User.findById(userId);
+  expect(user.avator).toEqual(expect.any(Buffer));
+
+  // expect({}).toBe({})
+  // will fail
+  // {} === {} checks same object from memory
+  // so for that we have to use
+  // expect({}).toEqual({})
 });
 
+test("should update user field", async () => {
+  await request(app)
+    .patch("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      name: "Sumeet",
+    })
+    .expect(200);
 
-test('should update user field', async () => {
-    await request(app).patch('/users/me')
-        .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
-        .send({
-            name: 'Sumeet'
-        }).expect(200)
-    
-    const user = await User.findById(userId)
-    expect(user.name).toBe('Sumeet')
-})
+  const user = await User.findById(userId);
+  expect(user.name).toBe("Sumeet");
+});
 
-test('should not update user field', async () => {
-    await request(app).patch('/users/me')
-        .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
-        .send({
-            college: 'JGEC'
-        }).expect(400)
-})
+test("should not update user field", async () => {
+  await request(app)
+    .patch("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      college: "JGEC",
+    })
+    .expect(400);
+});
