@@ -6,6 +6,10 @@ mongoose.connect(connectionURL, {
   useUnifiedTopology: true,
   useCreateIndex: true,
 });
+
+
+
+// Learnings and Testing
 // const MongoClient = require('mongodb').MongoClient;
 // const uri = "mongodb+srv://task-manager:<password>@cluster0-1yrdo.mongodb.net/test?retryWrites=true&w=majority";
 // const client = new MongoClient(uri, { useNewUrlParser: true });
