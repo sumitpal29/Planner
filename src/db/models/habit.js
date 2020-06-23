@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const {currentDateOnly} = require('../../utils')
+const { currentDateOnly } = require("../../utils");
 
 const habitSchema = new mongoose.Schema(
   {
@@ -21,7 +21,7 @@ const habitSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    data: [],
+    data: {},
     color: {
       type: String,
       default: "#" + Math.random().toString().slice(2, 8),
@@ -32,17 +32,19 @@ const habitSchema = new mongoose.Schema(
   }
 );
 
-habitSchema.methods.markDate = async function ({date, isChecked}) {
+habitSchema.methods.markDate = async function ({ date, isChecked }) {
   const habit = this;
+  const today = new Date();
+  const key = `${today.getFullYear()}-${today.getMonth()}`;
+  const doneAt = currentDateOnly(today);
 
-  const doneAt = currentDateOnly(new Date());
-  
-  if(habit.data[habit.data.length - 1] === doneAt) {
-      // remove last item
-      return;
+  if (habit.data[habit.data.length - 1] === doneAt) {
+    // remove last item
+    return;
   }
   // console.log(typeof doneAt, habit.data)
-  habit.data.push(doneAt);
+  if (!habit.data[key]) habit.data[key] = [];
+  habit.data[key].push(doneAt);
   await habit.save();
   return doneAt;
 };

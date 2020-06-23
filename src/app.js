@@ -5,6 +5,7 @@ require("./db/mongoose");
 const UserRoutes = require("./routers/users");
 const TaskRoutes = require("./routers/tasks");
 const HabitRoutes = require("./routers/habits");
+const BillRoutes = require("./routers/bills");
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.use(express.json());
 app.use(HabitRoutes);
 app.use(UserRoutes);
 app.use(TaskRoutes);
+app.use(BillRoutes);
 
 module.exports = app

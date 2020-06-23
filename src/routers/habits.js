@@ -79,7 +79,7 @@ router.delete("/habits/:id", auth, async (req, res) => {
     const habit = await Habit.findOneAndDelete({ _id, owner: req.user._id });
 
     if (!habit) return res.status(404).send({ message: "Habit not found" });
-    res.status(201).send(habit);
+    res.status(200).send(habit);
   } catch (err) {
     res.status(404).send(err);
   }
@@ -105,4 +105,5 @@ router.get("/habits/:id", auth, async (req, res) => {
     res.status(404).send(err);
   }
 });
+
 module.exports = router;

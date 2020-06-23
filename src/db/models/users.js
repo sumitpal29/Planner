@@ -81,7 +81,7 @@ userSchema.pre("save", async function (next) {
 
 userSchema.statics.findByCredential = async (email, password) => {
   const user = await User.findOne({ email });
-
+  console.log('in', user)
   if (!user) {
     throw new Error("Email not registered!");
   }
