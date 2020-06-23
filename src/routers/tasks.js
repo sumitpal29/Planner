@@ -6,7 +6,6 @@ const auth = require("../middleware/auth");
 // API end point to create new task
 router.post("/tasks", auth, async (req, res) => {
   // const newTask = new Task(req.body);
-
   const datum = {
     ...req.body,
     owner: req.user._id,
@@ -76,7 +75,7 @@ router.get("/tasks/:id", auth, async (req, res) => {
 });
 
 router.patch("/tasks/:id", auth, async (req, res) => {
-  const allowedProps = ["description", "completed"];
+  const allowedProps = ["description", "completed", "dueDate", "header"];
   const props = Object.keys(req.body);
   const isValidUpdate = props.every((prop) => allowedProps.includes(prop));
 
